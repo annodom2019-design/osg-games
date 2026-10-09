@@ -1,0 +1,196 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSG Games - Play and Have Fun!</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #10152f;
+  color: white;
+}
+header {
+  background: #191f46;
+  padding: 22px 15px;
+  text-align: center;
+}
+header h1 {
+  color: #ffd43b;
+  margin: 0;
+  font-size: 32px;
+}
+header p { margin-bottom: 0; }
+.hero {
+  text-align: center;
+  padding: 35px 15px;
+  background: linear-gradient(135deg, #352080, #087e8b);
+}
+.hero h2 { font-size: 27px; margin-top: 0; }
+.hero p { line-height: 1.6; }
+.games {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 18px;
+  max-width: 850px;
+  margin: auto;
+}
+.card {
+  background: #20284f;
+  border-radius: 15px;
+  padding: 18px 10px;
+  text-align: center;
+  border: 1px solid #424d80;
+}
+.emoji { font-size: 43px; }
+.card h3 { margin: 10px 0; }
+button {
+  background: #ffd43b;
+  color: #171717;
+  border: none;
+  padding: 11px 16px;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+}
+#game {
+  display: none;
+  background: white;
+  color: #151515;
+  padding: 22px;
+  margin: 10px 18px 25px;
+  border-radius: 15px;
+  text-align: center;
+}
+#game button { margin: 5px; }
+footer {
+  text-align: center;
+  padding: 22px;
+  background: #191f46;
+  line-height: 1.7;
+}
+@media (min-width: 600px) {
+  .games { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎮 OSG GAMES</h1>
+  <p>Your world of fun starts here!</p>
+</header><section class="hero">
+  <h2>Welcome to OSG Games!</h2>
+  <p>Play fun games, challenge your brain and beat your best score!</p>
+  <button onclick="document.getElementById('games').scrollIntoView({behavior:'smooth'})">PLAY NOW 🎯</button>
+</section><section class="games" id="games">
+  <div class="card">
+    <div class="emoji">🧠</div>
+    <h3>Number Challenge</h3>
+    <p>Can you guess the secret number?</p>
+    <button onclick="startGuess()">Play Game</button>
+  </div>
+  <div class="card">
+    <div class="emoji">❓</div>
+    <h3>Quick Quiz</h3>
+    <p>Test your general knowledge!</p>
+    <button onclick="startQuiz()">Play Game</button>
+  </div>
+  <div class="card">
+    <div class="emoji">✊</div>
+    <h3>Rock Paper Scissors</h3>
+    <p>Can you beat the computer?</p>
+    <button onclick="startRPS()">Play Game</button>
+  </div>
+  <div class="card">
+    <div class="emoji">➕</div>
+    <h3>Math Challenge</h3>
+    <p>How fast can you solve a sum?</p>
+    <button onclick="startMath()">Play Game</button>
+  </div>
+</section><section id="game">
+  <h2 id="gameTitle">Let's Play!</h2>
+  <div id="gameContent"></div>
+  <button onclick="closeGame()">Back to Games</button>
+</section><footer>
+  <strong>OSG Games 🎮</strong><br>
+  Made for fun, built for everyone!<br>
+  More exciting games coming soon.
+</footer><script>
+const panel = document.getElementById('game');
+const title = document.getElementById('gameTitle');
+const content = document.getElementById('gameContent');
+
+function openGame(name, html) {
+  title.textContent = name;
+  content.innerHTML = html;
+  panel.style.display = 'block';
+  panel.scrollIntoView({behavior:'smooth'});
+}
+function closeGame() {
+  panel.style.display = 'none';
+}
+function startGuess() {
+  const secret = Math.floor(Math.random() * 10) + 1;
+  openGame('🧠 Number Challenge',
+    '<p>Guess a number from 1 to 10!</p><input id="guess" type="number" min="1" max="10" style="padding:10px;width:100px"><button onclick="checkGuess()">Guess</button><p id="guessResult"></p>');
+  window.secretNumber = secret;
+}
+function checkGuess() {
+  const n = Number(document.getElementById('guess').value);
+  const result = document.getElementById('guessResult');
+  if (!n || n < 1 || n > 10) result.textContent = 'Enter a number from 1 to 10.';
+  else if (n === window.secretNumber) result.textContent = '🎉 Correct! You won!';
+  else result.textContent = n < window.secretNumber ? 'Too low! Try again.' : 'Too high! Try again.';
+}
+const questions = [
+  {q:'What is the capital of Nigeria?', a:['Lagos','Abuja','Kano'], correct:1},
+  {q:'How many days are in a week?', a:['5','7','10'], correct:1},
+  {q:'Which planet do we live on?', a:['Mars','Venus','Earth'], correct:2},
+  {q:'How many legs does a spider have?', a:['6','8','10'], correct:1}
+];
+function startQuiz() {
+  window.quizIndex = 0;
+  window.quizScore = 0;
+  showQuestion();
+}
+function showQuestion() {
+  if (window.quizIndex >= questions.length) {
+    openGame('Quiz Complete!', '<h3>You scored '+window.quizScore+' out of '+questions.length+'!</h3><button onclick="startQuiz()">Play Again</button>');
+    return;
+  }
+  const q = questions[window.quizIndex];
+  openGame('❓ Quick Quiz',
+    '<p>Question '+(window.quizIndex+1)+' of '+questions.length+'</p><h3>'+q.q+'</h3>'+
+    q.a.map((a,i)=>'<button onclick="answerQuiz('+i+')">'+a+'</button>').join(''));
+}
+function answerQuiz(i) {
+  if (i === questions[window.quizIndex].correct) window.quizScore++;
+  window.quizIndex++;
+  showQuestion();
+}
+function startRPS() {
+  openGame('✊ Rock Paper Scissors',
+    '<p>Choose your move!</p><button onclick="playRPS(0)">✊ Rock</button><button onclick="playRPS(1)">✋ Paper</button><button onclick="playRPS(2)">✌️ Scissors</button><h3 id="rpsResult"></h3>');
+}
+function playRPS(n) {
+  const moves = ['Rock','Paper','Scissors'];
+  const c = Math.floor(Math.random()*3);
+  let result = n===c ? 'It is a draw!' :
+    ((n===0&&c===2)||(n===1&&c===0)||(n===2&&c===1)) ? 'You win! 🎉' : 'Computer wins! Try again!';
+  document.getElementById('rpsResult').textContent = 'You: '+moves[n]+' | Computer: '+moves[c]+'. '+result;
+}
+function startMath() {
+  window.mathA = Math.floor(Math.random()*20)+1;
+  window.mathB = Math.floor(Math.random()*20)+1;
+  openGame('➕ Math Challenge',
+    '<h3>What is '+window.mathA+' + '+window.mathB+'?</h3><input id="mathAnswer" type="number" style="padding:10px;width:100px"><button onclick="checkMath()">Check</button><p id="mathResult"></p>');
+}
+function checkMath() {
+  const answer = Number(document.getElementById('mathAnswer').value);
+  document.getElementById('mathResult').textContent =
+    answer === window.mathA + window.mathB ? '🎉 Correct! Great job!' : 'Not quite. Try another round!';
+}
+</script></body>
+  </html>
